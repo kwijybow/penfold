@@ -6,6 +6,7 @@ void main (char[][] args) {
     
     p = new Position();
     p.startPosition();
+    p.printPosition();
 }
     
     
