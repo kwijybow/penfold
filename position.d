@@ -52,7 +52,7 @@ class Position {
         empty        = ~occupied;
         move_number  = 0;
         draw_moves   = 0;
-        enpassant_target = "";
+        enpassant_target = "-";
         wcastle = Castle.none;
         bcastle = Castle.none;
         
@@ -218,40 +218,20 @@ class Position {
         blackking    = 0;
         occupied     = 0;
         empty        = ~occupied;
+        move_number  = 0;
+        draw_moves   = 0;
+        enpassant_target = "-";
+        wcastle = Castle.none;
+        bcastle = Castle.none;
     }        
     
     void startPosition() {
-        string whitesquare;
-        string blacksquare;
-    
-        clearPosition();   
-        foreach(col; ["a","b","c","d","e","f","g","h"]) {
-            whitesquare = col ~ "2";
-            blacksquare = col ~ "7";
-            dropPiece(Color.white, Piece.pawn, whitesquare);
-            dropPiece(Color.black, Piece.pawn, blacksquare);
-        }
-        
-        dropPiece(Color.white, Piece.rook,   "a1");
-        dropPiece(Color.white, Piece.rook,   "h1");
-        dropPiece(Color.white, Piece.knight, "b1");
-        dropPiece(Color.white, Piece.knight, "g1");
-        dropPiece(Color.white, Piece.bishop, "c1");
-        dropPiece(Color.white, Piece.bishop, "f1");
-        dropPiece(Color.white, Piece.queen,  "d1");
-        dropPiece(Color.white, Piece.king,   "e1");
- 
-        dropPiece(Color.black, Piece.rook,   "a8");
-        dropPiece(Color.black, Piece.rook,   "h8");
-        dropPiece(Color.black, Piece.knight, "b8");
-        dropPiece(Color.black, Piece.knight, "g8");
-        dropPiece(Color.black, Piece.bishop, "c8");
-        dropPiece(Color.black, Piece.bishop, "f8");
-        dropPiece(Color.black, Piece.queen,  "d8");
-        dropPiece(Color.black, Piece.king,   "e8");
 
-    }    
+    clearPosition();
+    setFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1".dup);
     
+    }
+   
     void printPosition() {
         int square;
         string square_by_name;
@@ -270,7 +250,17 @@ class Position {
             writefln("   +---+---+---+---+---+---+---+---+   ");
         }
         writefln("     a   b   c   d   e   f   g   h     ");
-    }
+        writeln;
+        if (ctm == Color.white)
+            writeln("white to move");
+        else
+            writeln("black to move");
+        writefln("move number %s ", move_number);
+        writefln("50 move rule count %s ", draw_moves);
+        writefln("white castling = %s", wcastle);
+        writefln("black castling = %s", bcastle);
+        writefln("enpassant target = %s", enpassant_target); 
+    }  
     
     void printBitBoard(ulong board) {
         int i, j, x;
@@ -288,7 +278,7 @@ class Position {
         writeln;
     }
     
-    bool setFEN(string fenstring) {
+    bool setFEN(char[] fenstring) {
           int i, match, num, pos, square;
           int dm, mv;
           int tboard[64];
@@ -306,7 +296,7 @@ class Position {
           int whichsq;
           int firstsq[8] = [ 56, 48, 40, 32, 24, 16, 8, 0 ];
           bool ok = true;
-          string ep = "";
+          string ep = "-";
           
           
           for (i = 0; i < 64; i++)
@@ -392,7 +382,7 @@ class Position {
           pos++;
           
           if (fenstring[pos] == '-') {
-              enpassant_target = "";
+              ep = "-";
               pos += 2;
           }    
           else if (fenstring.length > pos+2) 
@@ -468,8 +458,6 @@ class Position {
 		          break;
 		  }
 		  updateOccupied();
-                  //writef(" %s ",tboard[i]);
-                  //if ((i % 8) == 0) {writeln;};
               }
               ctm = twtm;
               bcastle = black_castle;
@@ -480,4 +468,71 @@ class Position {
           }    
           return ok;
     }
+    
+    bool getFEN(ref char[] fenstring) {
+          int i, num;
+          bool ok = true;
+          string castle_status = "";
+          
+          fenstring.length = 0;
+          updateDisplayBoard();
+          num = 0;
+          for (i=63; i>=0; i--) {
+              if (displayBoard[i] == " ") 
+                  num++;
+              else {
+                  if (num > 0) { 
+                      fenstring = fenstring ~ to!string(num);
+                      num = 0;
+                  }
+                  fenstring = fenstring ~ displayBoard[i];
+              }
+              if ((i % 8) == 0) {
+                  if (num > 0) { 
+                      fenstring = fenstring ~ to!string(num);
+                      num = 0;
+                  }
+                  if (i > 0)
+                      fenstring = fenstring ~ "/";
+              }
+          }
+          
+          fenstring = fenstring ~ " ";
+          
+          if (ctm == Color.white)
+              fenstring = fenstring ~ "w";
+          else 
+              fenstring = fenstring ~ "b";
+          
+          fenstring = fenstring ~ " ";
+          
+          if (wcastle == Castle.both)
+              castle_status = castle_status ~ "KQ";
+          else if (wcastle == Castle.king)
+              castle_status = castle_status ~ "K";
+          else if (wcastle == Castle.queen)
+              castle_status = castle_status ~ "Q";
+              
+          if (bcastle == Castle.both)
+              castle_status = castle_status ~ "kq";
+          else if (bcastle == Castle.king)
+              castle_status = castle_status ~ "k";
+          else if (bcastle == Castle.queen)
+              castle_status = castle_status ~ "q";
+              
+          if (castle_status.length == 0) 
+              castle_status = castle_status ~ "-";
+              
+          fenstring = fenstring ~ castle_status;
+          fenstring = fenstring ~ " ";
+          fenstring = fenstring ~ enpassant_target;
+          fenstring = fenstring ~ " ";
+          fenstring = fenstring ~ to!string(draw_moves);
+          fenstring = fenstring ~ " ";
+          fenstring = fenstring ~ to!string(move_number);
+
+          //writefln("%s",fenstring);
+     
+         return ok;
+    } 
 }

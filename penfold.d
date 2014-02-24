@@ -4,14 +4,36 @@ import position;
 void main (char[][] args) {
     Position p;
     bool ok = true;
+    ulong fen_count = 0;
+    ulong error_count = 0;
+    char[] fen_out;
     
     p = new Position();
     p.startPosition();
     p.printPosition();
-    ok = p.setFEN("rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2".dup);
     writeln;
-    if (ok) {p.printPosition();}
-    
+    foreach (line; File("data/test.fen").byLine()) {
+        line = chomp(line);
+        //writefln("%s",line);
+        ok = p.setFEN(line);
+        if (ok) {
+            fen_count++;
+            ok = p.getFEN(fen_out);
+            if (!(fen_out == line)) {
+                error_count++;
+                writeln("error writing FEN!");
+                writefln("In : %s",line);
+                writefln("Out: %s",fen_out);
+                
+            }
+        }    
+        else {
+            writeln("error reading FEN!");
+            writeln(line);
+            error_count++;
+        }
+    }
+    writefln("%s positions read, %s errors encountered.", fen_count, error_count);
 }
     
     
