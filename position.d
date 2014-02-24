@@ -1,9 +1,10 @@
-import std.stdio, std.string, std.array;
+import std.stdio, std.string, std.array, std.conv;
 import core.bitop;
 
 class Position {
     enum Color { white = 0, black = 1 };
     enum Piece { pawn = 1, knight = 2, bishop = 3, rook = 4, queen = 5, king = 6 };
+    enum Castle { none = 0, king = 1, queen = 2, both = 3 }
     
     Color ctm;
     ulong whitepawns;
@@ -22,7 +23,8 @@ class Position {
     ulong empty;
     int move_number;
     int draw_moves;
-    bool[string] castle;
+    Castle wcastle;
+    Castle bcastle;
     string enpassant_target;
     int[string] squarenum;
     string[int] squarename;
@@ -51,11 +53,8 @@ class Position {
         move_number  = 0;
         draw_moves   = 0;
         enpassant_target = "";
-        castle["K"] = true;
-        castle["Q"] = true;
-        castle["k"] = true;
-        castle["q"] = true;
-
+        wcastle = Castle.none;
+        bcastle = Castle.none;
         
         foreach(row; ["1","2","3","4","5","6","7","8"]) {
             foreach(col; ["h","g","f","e","d","c","b","a"]) {
@@ -291,8 +290,9 @@ class Position {
     
     bool setFEN(string fenstring) {
           int twtm, i, match, num, pos, square;
+          int dm, mv;
           int tboard[64];
-          int bcastle, ep, wcastle, error = 0;
+          int black_castle, white_castle, error = 0;
           char input[80];
           char bdinfo[] =   [ 'k', 'q', 'r', 'b', 'n', 'p', '*', 'P', 'N', 'B',
                               'R', 'Q', 'K', '*', '1', '2', '3', '4',
@@ -304,6 +304,7 @@ class Position {
           int whichsq;
           int firstsq[8] = [ 56, 48, 40, 32, 24, 16, 8, 0 ];
           bool ok = true;
+          string ep;
           
           
           for (i = 0; i < 64; i++)
@@ -351,16 +352,16 @@ class Position {
                   }
           }
           twtm = 0;
-          ep = 0;
-          wcastle = 0;
-          bcastle = 0;
+          ep = "";
+          white_castle = 0;
+          black_castle = 0;
           
           pos++;
           
           if (fenstring[pos] == 'w')
-              twtm = 1;
+              twtm = Color.white;
           else if (fenstring[pos] == 'b')
-              twtm = 0;
+              twtm = Color.black;
           else {
               writeln("side to move is bad");
               error = 1;
@@ -373,19 +374,17 @@ class Position {
                   if (match > 12)
                       break;
                   if (match == 12) {
-                      castle["K"] = false;
-                      castle["Q"] = false;
-                      castle["k"] = false;
-                      castle["q"] = false;
+                      white_castle = Castle.none;
+                      black_castle = Castle.none;
                   }    
                   else if (match == 0)
-                      castle["K"] = true;
+                      white_castle += 1;
                   else if (match == 1)
-                      castle["Q"] = true;
+                      white_castle += 2;
                   else if (match == 2)
-                      castle["k"] = true;
+                      black_castle += 1;
                   else if (match == 3)
-                      castle["q"] = true;    
+                      black_castle += 2;    
                   else {
                       writeln("castling status is bad.");
                       error = 1;
@@ -412,11 +411,16 @@ class Position {
               error = 1;
           }
 
-          
-          
-          writeln("pos = ",pos);
-          for(i=pos; i<fenstring.length; i++)  
-              writeln("fenstring[pos] = ",fenstring[i]);
+          auto move_info = array(splitter(fenstring[pos .. $]));
+          if (move_info.length == 2) {
+              dm = to!int(move_info[0]);
+              mv = to!int(move_info[1]);
+          }
+          else {
+              writeln("move numbers are bad.");
+              error = 1;
+          }
+
           
           return ok;
     }
