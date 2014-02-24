@@ -289,10 +289,12 @@ class Position {
     }
     
     bool setFEN(string fenstring) {
-          int twtm, i, match, num, pos, square;
+          int i, match, num, pos, square;
           int dm, mv;
           int tboard[64];
-          int black_castle, white_castle, error = 0;
+          int a_rank[8];
+          Color twtm;
+          Castle black_castle, white_castle;
           char input[80];
           char bdinfo[] =   [ 'k', 'q', 'r', 'b', 'n', 'p', '*', 'P', 'N', 'B',
                               'R', 'Q', 'K', '*', '1', '2', '3', '4',
@@ -304,7 +306,7 @@ class Position {
           int whichsq;
           int firstsq[8] = [ 56, 48, 40, 32, 24, 16, 8, 0 ];
           bool ok = true;
-          string ep;
+          string ep = "";
           
           
           for (i = 0; i < 64; i++)
@@ -334,7 +336,7 @@ class Position {
                       square += match - 13;
                       if (num > 8) {
                           writeln("more than 8 squares on one rank");
-                          error = 1;
+                          ok = false;
                           break;
                       }
                       continue;
@@ -345,17 +347,13 @@ class Position {
                   else {
                       if (++num > 8) {
                           writeln("more than 8 squares on one rank");
-                          error = 1;
+                          ok = false;
                           break;
                       }
                       tboard[square++] = match - 6;
                   }
           }
-          twtm = 0;
-          ep = "";
-          white_castle = 0;
-          black_castle = 0;
-          
+
           pos++;
           
           if (fenstring[pos] == 'w')
@@ -364,7 +362,7 @@ class Position {
               twtm = Color.black;
           else {
               writeln("side to move is bad");
-              error = 1;
+              ok = false;
           }
           
           pos += 2;
@@ -387,7 +385,7 @@ class Position {
                       black_castle += 2;    
                   else {
                       writeln("castling status is bad.");
-                      error = 1;
+                      ok = false;
                   }          
           }
           
@@ -399,16 +397,16 @@ class Position {
           }    
           else if (fenstring.length > pos+2) 
               if (fenstring[pos] >= 'a' && fenstring[pos] <= 'h' && fenstring[pos+1] > '0' && fenstring[pos+1] < '9') {
-                  enpassant_target = fenstring[pos .. (pos+2)].dup;
+                  ep = fenstring[pos .. (pos+2)].dup;
                   pos += 3;
               }    
               else {
                   writeln("enpassant status is bad.");
-                  error = 1;
+                  ok = false;
               }
           else {
               writeln("enpassant status is bad.");
-              error = 1;
+              ok = false;
           }
 
           auto move_info = array(splitter(fenstring[pos .. $]));
@@ -418,10 +416,68 @@ class Position {
           }
           else {
               writeln("move numbers are bad.");
-              error = 1;
+              ok = false;
           }
-
           
+          for (i=0; i<8; i++) {
+              a_rank = tboard[firstsq[i] .. (firstsq[i]+8)];
+              tboard[firstsq[i] .. (firstsq[i]+8)] = a_rank.reverse;
+          }
+          
+          if (ok) {
+              clearPosition();
+              for (i=63; i>=0; i--) {
+                  switch (tboard[i]) {
+                      case -1:
+                          dropPiece(Color.black, Piece.pawn, squarename[i]);
+                          break;
+                      case 1:
+                          dropPiece(Color.white, Piece.pawn, squarename[i]);
+                          break;
+                      case -2:
+                          dropPiece(Color.black, Piece.knight, squarename[i]);
+                          break;
+                      case 2:
+                          dropPiece(Color.white, Piece.knight, squarename[i]);
+                          break;
+                      case -3:
+                          dropPiece(Color.black, Piece.bishop, squarename[i]);
+                          break;
+                      case 3:
+                          dropPiece(Color.white, Piece.bishop, squarename[i]);
+                          break;
+                      case -4:
+                          dropPiece(Color.black, Piece.rook, squarename[i]);
+                          break;
+                      case 4:
+                          dropPiece(Color.white, Piece.rook, squarename[i]);
+                          break;
+                      case -5:
+                          dropPiece(Color.black, Piece.queen, squarename[i]);
+                          break;
+                      case 5:
+                          dropPiece(Color.white, Piece.queen, squarename[i]);
+                          break;
+                      case -6:
+                          dropPiece(Color.black, Piece.king, squarename[i]);
+                          break;
+                      case 6:
+		          dropPiece(Color.white, Piece.king, squarename[i]);
+		          break;
+		      default:
+		          break;
+		  }
+		  updateOccupied();
+                  //writef(" %s ",tboard[i]);
+                  //if ((i % 8) == 0) {writeln;};
+              }
+              ctm = twtm;
+              bcastle = black_castle;
+              wcastle = white_castle;
+              draw_moves = dm;
+              move_number = mv;
+              enpassant_target = ep.dup;
+          }    
           return ok;
     }
 }
