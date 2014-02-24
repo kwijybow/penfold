@@ -20,6 +20,10 @@ class Position {
     ulong blackking;
     ulong occupied;
     ulong empty;
+    int move_number;
+    int draw_moves;
+    bool[string] castle;
+    string enpassant_target;
     int[string] squarenum;
     string[int] squarename;
     string displayBoard[64];
@@ -44,6 +48,14 @@ class Position {
         blackking    = 0;
         occupied     = 0;
         empty        = ~occupied;
+        move_number  = 0;
+        draw_moves   = 0;
+        enpassant_target = "";
+        castle["K"] = true;
+        castle["Q"] = true;
+        castle["k"] = true;
+        castle["q"] = true;
+
         
         foreach(row; ["1","2","3","4","5","6","7","8"]) {
             foreach(col; ["h","g","f","e","d","c","b","a"]) {
@@ -275,5 +287,137 @@ class Position {
             writef("\n");
         }
         writeln;
+    }
+    
+    bool setFEN(string fenstring) {
+          int twtm, i, match, num, pos, square;
+          int tboard[64];
+          int bcastle, ep, wcastle, error = 0;
+          char input[80];
+          char bdinfo[] =   [ 'k', 'q', 'r', 'b', 'n', 'p', '*', 'P', 'N', 'B',
+                              'R', 'Q', 'K', '*', '1', '2', '3', '4',
+                              '5', '6', '7', '8', '/'
+                            ];
+          char status[14] = [ 'K', 'Q', 'k', 'q', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
+                              'h', '-', ' '
+                            ];
+          int whichsq;
+          int firstsq[8] = [ 56, 48, 40, 32, 24, 16, 8, 0 ];
+          bool ok = true;
+          
+          
+          for (i = 0; i < 64; i++)
+          tboard[i] = 0;
+          
+          whichsq = 0;
+          square = firstsq[whichsq];
+          num = 0;
+          for (pos = 0; pos < fenstring.length; pos++) {
+              for (match = 0; ((match < 23) && (fenstring[pos] != bdinfo[match])); match++) {};
+                  if (match > 22)
+                      break;
+          /*
+          "/" -> end of this rank.
+          */
+                  else if (match == 22) {
+                      num = 0;
+                      if (whichsq > 6)
+                          break;
+                      square = firstsq[++whichsq];
+                  }
+          /*
+          "1-8" -> empty squares.
+          */
+                  else if (match >= 14) {
+                      num += match - 13;
+                      square += match - 13;
+                      if (num > 8) {
+                          writeln("more than 8 squares on one rank");
+                          error = 1;
+                          break;
+                      }
+                      continue;
+                  }
+          /*
+          piece codes.
+          */
+                  else {
+                      if (++num > 8) {
+                          writeln("more than 8 squares on one rank");
+                          error = 1;
+                          break;
+                      }
+                      tboard[square++] = match - 6;
+                  }
+          }
+          twtm = 0;
+          ep = 0;
+          wcastle = 0;
+          bcastle = 0;
+          
+          pos++;
+          
+          if (fenstring[pos] == 'w')
+              twtm = 1;
+          else if (fenstring[pos] == 'b')
+              twtm = 0;
+          else {
+              writeln("side to move is bad");
+              error = 1;
+          }
+          
+          pos += 2;
+          
+          for (; pos < fenstring.length; pos++) {
+              for (match = 0; ((match < 14) && (fenstring[pos] != status[match])); match++) {};
+                  if (match > 12)
+                      break;
+                  if (match == 12) {
+                      castle["K"] = false;
+                      castle["Q"] = false;
+                      castle["k"] = false;
+                      castle["q"] = false;
+                  }    
+                  else if (match == 0)
+                      castle["K"] = true;
+                  else if (match == 1)
+                      castle["Q"] = true;
+                  else if (match == 2)
+                      castle["k"] = true;
+                  else if (match == 3)
+                      castle["q"] = true;    
+                  else {
+                      writeln("castling status is bad.");
+                      error = 1;
+                  }          
+          }
+          
+          pos++;
+          
+          if (fenstring[pos] == '-') {
+              enpassant_target = "";
+              pos += 2;
+          }    
+          else if (fenstring.length > pos+2) 
+              if (fenstring[pos] >= 'a' && fenstring[pos] <= 'h' && fenstring[pos+1] > '0' && fenstring[pos+1] < '9') {
+                  enpassant_target = fenstring[pos .. (pos+2)].dup;
+                  pos += 3;
+              }    
+              else {
+                  writeln("enpassant status is bad.");
+                  error = 1;
+              }
+          else {
+              writeln("enpassant status is bad.");
+              error = 1;
+          }
+
+          
+          
+          writeln("pos = ",pos);
+          for(i=pos; i<fenstring.length; i++)  
+              writeln("fenstring[pos] = ",fenstring[i]);
+          
+          return ok;
     }
 }
