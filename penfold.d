@@ -1,5 +1,6 @@
 import std.stdio, std.string, std.array, std.conv, std.datetime;
 import position;
+import hash;
 
 void main (char[][] args) {
     Position p;
@@ -12,7 +13,10 @@ void main (char[][] args) {
     p.startPosition();
     p.printPosition();
     writeln;
-    foreach (line; File("data/test.fen").byLine()) {
+    
+    InitializeHashTables();
+    
+    foreach (line; File("/home/nelson/data/chess/data/test.fen").byLine()) {
         line = chomp(line);
         //writefln("%s",line);
         ok = p.setFEN(line);

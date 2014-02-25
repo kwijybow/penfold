@@ -21,6 +21,8 @@ class Position {
     ulong blackking;
     ulong occupied;
     ulong empty;
+    ulong hash_key;
+    ulong pawn_hash_key;
     int move_number;
     int draw_moves;
     Castle wcastle;

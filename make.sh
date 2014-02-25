@@ -1,1 +1,1 @@
-dmd -m64 -O penfold.d position.d 
+dmd -m64 -O penfold.d position.d hash.d
