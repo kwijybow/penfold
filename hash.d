@@ -1,8 +1,9 @@
-import std.stdio, std.string, std.array, std.conv;
+import std.stdio, std.string, std.array, std.conv, std.algorithm;
 import core.bitop;
 import core.memory : GC;
-
-enum maxply = 129;
+import chess;
+import position;
+import tree;
 
 struct Hash_Entry {
   ulong word1;
@@ -24,13 +25,16 @@ struct Hpath_Entry {
   ulong path_sig;
   int hash_pathl;
   int hash_path_age;
-  int hash_path_moves[maxply];
+  int hash_path_moves[MAXPLY];
 };
 
 int transposition_age;
-int hash_table_size      = 524288;
+int hash_table_size      = 33554432;
 int hash_path_size       = 65536;
-int pawn_hash_table_size = 16384;
+int pawn_hash_table_size = 1048576;
+ulong hash_mask;
+ulong pawn_hash_mask;
+ulong hash_path_mask;
 
 Hash_Entry* trans_ref;
 Pawn_Hash_Entry* pawn_hash_table;
@@ -44,6 +48,9 @@ void InitializeHashTables() {
   trans_ref = cast(Hash_Entry*)GC.malloc(hash_table_size * Hash_Entry.sizeof, GC.BlkAttr.NO_SCAN);
   pawn_hash_table = cast(Pawn_Hash_Entry*)GC.malloc(hash_table_size * Pawn_Hash_Entry.sizeof, GC.BlkAttr.NO_SCAN);
   hash_path = cast(Hpath_Entry*)GC.malloc(hash_path_size * Hpath_Entry.sizeof, GC.BlkAttr.NO_SCAN);
+  hash_mask = ((1UL << (bsr(to!ulong(hash_table_size)) - 2)) - 1) << 2;
+  pawn_hash_mask = (1UL << bsr(to!ulong(pawn_hash_table_size))) - 1;
+  hash_path_mask = (hash_path_size - 1) & ~15;
 
   transposition_age = 0;
   if (!trans_ref)
@@ -425,13 +432,13 @@ ulong enpassant_random[65] = [
  *                                                                             *
  *******************************************************************************
  */
-uint Random32() {
+//uint Random32() {
 /*
  random numbers from Mathematica 2.0.
  SeedRandom = 1;
  Table[Random[Integer, {0, 2^32 - 1}]
  */
- 
+/* 
   static const ulong x[55] = [
     1410651636UL, 3012776752UL, 3497475623UL, 2892145026UL, 1571949714UL,
     3253082284UL, 3489895018UL, 387949491UL, 2597396737UL, 1981903553UL,
@@ -466,7 +473,7 @@ uint Random32() {
     k = 55 - 1;
   return (to!uint(ul));
 }
-
+*/
 /*
  *******************************************************************************
  *                                                                             *
@@ -476,7 +483,7 @@ uint Random32() {
  *                                                                             *
  *******************************************************************************
  */
- 
+/* 
 ulong Random64() {
   ulong result;
   uint r1, r2;
@@ -486,4 +493,250 @@ ulong Random64() {
   result = r1 | to!ulong(r2) << 32;
   return (result);
 }
+*/
+void HashStore(ref Tree tree, int ply, int depth, int wtm, int type, int value, int bestmove) {
+  Hash_Entry* htable;
+  Hash_Entry* replace;
+  Hpath_Entry* ptable;
+  ulong word1, temp_hashkey;
+  int entry, draft, age, replace_draft, i, j;
+
+/*
+ ************************************************************
+ *                                                          *
+ *   "Fill in the blank" and build a table entry from       *
+ *   current search information.                            *
+ *                                                          *
+ ************************************************************
+ */
+  word1 = transposition_age;
+  word1 = (word1 << 2) | type;
+  if (value > MATE - 300)
+    value += ply - 1;
+  else if (value < -MATE + 300)
+    value -= ply - 1;
+  word1 = (word1 << 21) | bestmove;
+  word1 = (word1 << 15) | depth;
+  word1 = (word1 << 17) | (value + 65536);
+  temp_hashkey = (wtm) ? tree.p.hash_key : ~tree.p.hash_key;
+/*
+ ************************************************************
+ *                                                          *
+ *   Now we search for an entry to overwrite in three       *
+ *   passes.                                                *
+ *                                                          *
+ *   Pass 1:  If any signature in the table matches the     *
+ *     current signature, we are going to overwrite this    *
+ *     entry, period.  It might seem worthwhile to check    *
+ *     the draft and not overwrite if the table draft is    *
+ *     greater than the current remaining depth, but after  *
+ *     you think about it, this is a bad idea.  If the      *
+ *     draft is greater than or equal the current remaining *
+ *     depth, then we should never get here unless the      *
+ *     stored bound or score is unusable because of the     *
+ *     current alpha/beta window.  So we are overwriting to *
+ *     avoid losing the current result.                     *
+ *                                                          *
+ *   Pass 2:  If any of the entries come from a previous    *
+ *     search (not iteration) then we choose the entry from *
+ *     this set that has the smallest draft, since it is    *
+ *     the least potentially usable result.                 *
+ *                                                          *
+ *   Pass 3:  If neither of the above two found an entry to *
+ *     overwrite, we simply choose the entry from the       *
+ *     bucket with the smallest draft and overwrite that.   *
+ *                                                          *
+ ************************************************************
+ */
+  htable = trans_ref + (temp_hashkey & hash_mask);
+  for (entry = 0; entry < 4; entry++, htable++) {
+    if (temp_hashkey == (htable.word1 ^ htable.word2)) {
+      replace = htable;
+      break;
+    }
+  }
+  if (!replace) {
+    replace_draft = 99999;
+    htable = trans_ref + (temp_hashkey & hash_mask);
+    for (entry = 0; entry < 4; entry++, htable++) {
+      age = htable.word1 >> 55;
+      draft = (htable.word1 >> 17) & 0x7fff;
+      if (age != transposition_age && replace_draft > draft) {
+        replace = htable;
+        replace_draft = draft;
+      }
+    }
+    if (!replace) {
+      htable = trans_ref + (temp_hashkey & hash_mask);
+      for (entry = 0; entry < 4; entry++, htable++) {
+        draft = (htable.word1 >> 17) & 0x7fff;
+        if (replace_draft > draft) {
+          replace = htable;
+          replace_draft = draft;
+        }
+      }
+    }
+  }
+/*
+ ************************************************************
+ *                                                          *
+ *   Now that we know which entry to replace, we simply     *
+ *   stuff the values and exit.  Note that the two 64 bit   *
+ *   words are xor'ed together and stored as the signature  *
+ *   for the "lockless-hash" approach.                      *
+ *                                                          *
+ ************************************************************
+ */
+  replace.word1 = word1;
+  replace.word2 = temp_hashkey ^ word1;
+/*
+ ************************************************************
+ *                                                          *
+ *   If this is an EXACT entry, we are going to store the   *
+ *   PV in a safe place so that if we get a hit on this     *
+ *   entry, we can recover the PV and see the complete path *
+ *   rather than one that is incomplete.                    *
+ *                                                          *
+ ************************************************************
+ */
+ 
+  if (type == EXACT) {
+    ptable = hash_path + (temp_hashkey & hash_path_mask);
+    for (i = 0; i < 16; i++, ptable++) {
+      if (ptable.path_sig == temp_hashkey ||
+          ((transposition_age - ptable.hash_path_age) > 1)) {
+        for (j = ply; j < tree.pv[ply - 1].pathl; j++)
+          ptable.hash_path_moves[j - ply] = tree.pv[ply - 1].path[j];
+        ptable.hash_pathl = tree.pv[ply - 1].pathl - ply;
+        ptable.path_sig = temp_hashkey;
+        ptable.hash_path_age = transposition_age;
+        break;
+      }
+    }
+  }
+  
+}
+
+int HashProbe(ref Tree tree, int ply, int depth, int wtm, int alpha,int beta, ref int value) {
+  Hash_Entry* htable;
+  Hpath_Entry* ptable;
+  ulong word1, word2, temp_hashkey;
+  int type, draft, avoid_null = 0, val, entry, i, j;
+
+/*
+ ************************************************************
+ *                                                          *
+ *   All we have to do is loop through four entries to see  *
+ *   there is a signature match.  There can only be one     *
+ *   instance of any single signature, so the first match   *
+ *   is all we need.                                        *
+ *                                                          *
+ ************************************************************
+ */
+  //tree->hash_move[ply] = 0;
+  temp_hashkey = (wtm) ? tree.p.hash_key : ~tree.p.hash_key;
+  htable = trans_ref + (temp_hashkey & hash_mask);
+  for (entry = 0; entry < 4; entry++, htable++) {
+    word1 = htable.word1;
+    word2 = htable.word2 ^ word1;
+    if (word2 == temp_hashkey)
+      break;
+  }
+/*
+ ************************************************************
+ *                                                          *
+ *   If we found a match, we have to verify that the draft  *
+ *   is at least equal to the current depth, if not higher, *
+ *   and that the bound/score will let us terminate the     *
+ *   search early.                                          *
+ *                                                          *
+ *   We also return an "avoid_null" status if the matched   *
+ *   entry does not have enough draft to terminate the      *
+ *   current search but does have enough draft to prove     *
+ *   that a null-move search would not fail high.  This     *
+ *   avoids the null-move search overhead in positions      *
+ *   where it is simply a waste of time to try it.          *
+ *                                                          *
+ *   If this is an EXACT entry, we are going to store the   *
+ *   PV in a safe place so that if we get a hit on this     *
+ *   entry, we can recover the PV and see the complete path *
+ *   rather than one that is incomplete.                    *
+ *                                                          *
+ *   One other issue is to update the age field if we get a *
+ *   hit on an old position, so that it won't be replaced   *
+ *   just because it came from a previous search.           *
+ *                                                          *
+ ************************************************************
+ */
+  if (entry < 4) {
+    if (word1 >> 55 != transposition_age) {
+      word1 =
+          (word1 & 0x007fffffffffffffUL) | (to!ulong(transposition_age) << 55);
+      htable.word1 = word1;
+      htable.word2 = word1 ^ word2;
+    }
+    val = (to!int(word1 & 0x1ffff) - 65536);
+    draft = (word1 >> 17) & 0x7fff;
+    tree.hash_move[ply] = (word1 >> 32) & 0x1fffff;
+    type = (word1 >> 53) & 3;
+    if ((type & UPPER) && depth - null_depth - 1 <= draft && val < beta)
+      avoid_null = AVOID_NULL_MOVE;
+    if (depth <= draft) {
+      if (val > MATE - 300)
+        val -= ply - 1;
+      else if (val < -MATE + 300)
+        val += ply - 1;
+      value = val;
+/*
+ ************************************************************
+ *                                                          *
+ *   We have three types of results.  An EXACT entry was    *
+ *   stored when val > alpha and val < beta, and represents *
+ *   an exact score.  An UPPER entry was stored when val <  *
+ *   alpha, which represents an upper bound with the score  *
+ *   likely being even lower.  A LOWER entry was stored     *
+ *   when val > beta, which represents alower bound with    *
+ *   the score likely being even higher.                    *
+ *                                                          *
+ *   For EXACT entries, we save the path from the position  *
+ *   to the terminal node that produced the backed-up score *
+ *   so that we can complete the PV if we get a hash hit on *
+ *   this entry.                                            *
+ *                                                          *
+ ************************************************************
+ */
+      switch (type) {
+        case EXACT:
+          if (val > alpha && val < beta) {
+            SavePV(tree, ply, 1 + (draft == MAX_DRAFT));
+            ptable = hash_path + (temp_hashkey & hash_path_mask);
+            for (i = 0; i < 16; i++, ptable++)
+              if (ptable.path_sig == temp_hashkey) {
+                for (j = ply; j < min(MAXPLY - 1, ptable.hash_pathl + ply); j++)
+                  tree.pv[ply - 1].path[j] = ptable.hash_path_moves[j - ply];
+                if (draft != MAX_DRAFT && ptable.hash_pathl + ply < MAXPLY - 1)
+                  tree.pv[ply - 1].pathh = 0;
+                tree.pv[ply - 1].pathl = to!ubyte(min(MAXPLY - 1, ply + ptable.hash_pathl));
+                ptable.hash_path_age = transposition_age;
+                break;
+              }
+          }
+          return (HASH_HIT);
+        case UPPER:
+          if (val <= alpha)
+            return (HASH_HIT);
+          break;
+        case LOWER:
+          if (val >= beta)
+            return (HASH_HIT);
+          break;
+        default:
+          break;
+      }
+    }
+    return (avoid_null);
+  }
+  return (HASH_MISS);
+}
+
 

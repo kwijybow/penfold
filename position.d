@@ -1,6 +1,7 @@
 import std.stdio, std.string, std.array, std.conv;
 import core.bitop;
 import hash;
+import chess;
 
 class Position {
     enum Color { white = 0, black = 1 };
