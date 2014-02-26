@@ -16,12 +16,13 @@ void main (char[][] args) {
     
     InitializeHashTables();
     
-    foreach (line; File("/home/nelson/data/chess/data/test.fen").byLine()) {
+    foreach (line; File("test.fen").byLine()) {
         line = chomp(line);
         //writefln("%s",line);
         ok = p.setFEN(line);
         if (ok) {
             fen_count++;
+            p.printPosition();
             ok = p.getFEN(fen_out);
             if (!(fen_out == line)) {
                 error_count++;

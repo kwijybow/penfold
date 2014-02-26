@@ -1,5 +1,6 @@
 import std.stdio, std.string, std.array, std.conv;
 import core.bitop;
+import hash;
 
 class Position {
     enum Color { white = 0, black = 1 };
@@ -38,22 +39,24 @@ class Position {
         int square = 0;
         string square_by_name;
         
-        whitepawns   = 0;
-        whiterooks   = 0;
-        whiteknights = 0;
-        whitebishops = 0;
-        whitequeens  = 0;
-        whiteking    = 0;
-        blackpawns   = 0;
-        blackrooks   = 0;
-        blackknights = 0;
-        blackbishops = 0;
-        blackqueens  = 0;
-        blackking    = 0;
-        occupied     = 0;
-        empty        = ~occupied;
-        move_number  = 0;
-        draw_moves   = 0;
+        whitepawns    = 0;
+        whiterooks    = 0;
+        whiteknights  = 0;
+        whitebishops  = 0;
+        whitequeens   = 0;
+        whiteking     = 0;
+        blackpawns    = 0;
+        blackrooks    = 0;
+        blackknights  = 0;
+        blackbishops  = 0;
+        blackqueens   = 0;
+        blackking     = 0;
+        occupied      = 0;
+        empty         = ~occupied;
+        hash_key      = 0;
+        pawn_hash_key = 0;
+        move_number   = 0;
+        draw_moves    = 0;
         enpassant_target = "-";
         wcastle = Castle.none;
         bcastle = Castle.none;
@@ -63,6 +66,7 @@ class Position {
                 square_by_name = col ~ row;
                 squarenum[square_by_name] = square;
                 squarename[square] = square_by_name;
+                displayBoard[square] = " ".dup;
                 square++;
             }
         }
@@ -159,45 +163,96 @@ class Position {
         empty = ~occupied;
     }
     
+    void hashPiece(Color color, Piece piece, int square) {
+        hash_key ^= randoms[color][piece][square];
+    }
+
+    void hashPawn(Color color, int square) {
+        pawn_hash_key ^= randoms[color][Piece.pawn][square];
+    }
+    
+    void hashCastle(Color color, Castle castling) {
+        if (castling == Castle.none)
+            return;
+        else if (castling == Castle.king)
+            hash_key ^= castle_random[color][0];
+        else if (castling == Castle.queen)
+            hash_key ^= castle_random[color][1];
+        else if (castling == Castle.both) {
+            hash_key ^= castle_random[color][0];
+            hash_key ^= castle_random[color][1];
+        }    
+    }
+    
+    void hashEnpassant(int square) {
+        hash_key ^= enpassant_random[square];
+    }
+    
     void dropPiece (Color color, Piece piece, string square) {
         ulong one = 1;
         
         switch (piece) {
             case Piece.pawn:
-                if (color == Color.black)
+                if (color == Color.black) {
                     blackpawns |= (one << squarenum[square]);
-                else
+                    hashPiece(Color.black, Piece.pawn, squarenum[square]);
+                    hashPawn(Color.black, squarenum[square]);
+                }
+                else {
                     whitepawns |= (one << squarenum[square]);
+                    hashPiece(Color.white, Piece.pawn, squarenum[square]);
+                    hashPawn(Color.white, squarenum[square]);
+                }
                 break;
             case Piece.rook:
-                if (color == Color.black)
+                if (color == Color.black) {
                     blackrooks |= (one << squarenum[square]);
-                else
+                    hashPiece(Color.black, Piece.rook, squarenum[square]);
+                }
+                else {
                     whiterooks |= (one << squarenum[square]);
+                    hashPiece(Color.white, Piece.rook, squarenum[square]);
+                }    
                 break;
             case Piece.knight:
-                if (color == Color.black)
+                if (color == Color.black) {
                     blackknights |= (one << squarenum[square]);
-                else
+                    hashPiece(Color.black, Piece.knight, squarenum[square]);
+                }    
+                else {
                     whiteknights |= (one << squarenum[square]);
+                    hashPiece(Color.white, Piece.knight, squarenum[square]);
+                }
                 break;
             case Piece.bishop:
-                if (color == Color.black)
+                if (color == Color.black) {
                     blackbishops |= (one << squarenum[square]);
-                else
+                    hashPiece(Color.black, Piece.bishop, squarenum[square]);
+                }
+                else {
                     whitebishops |= (one << squarenum[square]);
+                    hashPiece(Color.white, Piece.bishop, squarenum[square]);
+                }
                 break;
             case Piece.queen:
-                if (color == Color.black)
+                if (color == Color.black) {
                     blackqueens |= (one << squarenum[square]);
-                else
+                    hashPiece(Color.black, Piece.queen, squarenum[square]);
+                }
+                else {
                     whitequeens |= (one << squarenum[square]);
+                    hashPiece(Color.white, Piece.queen, squarenum[square]);
+                }
                 break;
             case Piece.king:
-                if (color == Color.black)
+                if (color == Color.black) {
                     blackking |= (one << squarenum[square]);
-                else
+                    hashPiece(Color.black, Piece.king, squarenum[square]);
+                }    
+                else {
                     whiteking |= (one << squarenum[square]);
+                    hashPiece(Color.white, Piece.king, squarenum[square]);
+                }    
                 break;
             default:
                 break;
@@ -206,22 +261,24 @@ class Position {
     }
     
     void clearPosition() {
-        whitepawns   = 0;
-        whiterooks   = 0;
-        whiteknights = 0;
-        whitebishops = 0;
-        whitequeens  = 0;
-        whiteking    = 0;
-        blackpawns   = 0;
-        blackrooks   = 0;
-        blackknights = 0;
-        blackbishops = 0;
-        blackqueens  = 0;
-        blackking    = 0;
-        occupied     = 0;
-        empty        = ~occupied;
-        move_number  = 0;
-        draw_moves   = 0;
+        whitepawns    = 0;
+        whiterooks    = 0;
+        whiteknights  = 0;
+        whitebishops  = 0;
+        whitequeens   = 0;
+        whiteking     = 0;
+        blackpawns    = 0;
+        blackrooks    = 0;
+        blackknights  = 0;
+        blackbishops  = 0;
+        blackqueens   = 0;
+        blackking     = 0;
+        occupied      = 0;
+        empty         = ~occupied;
+        hash_key      = 0;
+        pawn_hash_key = 0;
+        move_number   = 0;
+        draw_moves    = 0;
         enpassant_target = "-";
         wcastle = Castle.none;
         bcastle = Castle.none;
@@ -261,7 +318,9 @@ class Position {
         writefln("50 move rule count %s ", draw_moves);
         writefln("white castling = %s", wcastle);
         writefln("black castling = %s", bcastle);
-        writefln("enpassant target = %s", enpassant_target); 
+        writefln("enpassant target = %s", enpassant_target);
+        writefln("hash_key = %s", hash_key);
+        writefln("pawn_hash_key = %s", pawn_hash_key);
     }  
     
     void printBitBoard(ulong board) {
@@ -463,10 +522,14 @@ class Position {
               }
               ctm = twtm;
               bcastle = black_castle;
+              hashCastle(Color.black, bcastle);
               wcastle = white_castle;
+              hashCastle(Color.white, wcastle);
               draw_moves = dm;
               move_number = mv;
               enpassant_target = ep.dup;
+              if (enpassant_target != "-") 
+                  hashEnpassant(squarenum[enpassant_target]);
           }    
           return ok;
     }
