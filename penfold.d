@@ -3,6 +3,8 @@ import position;
 import hash;
 import chess;
 import tree;
+import masks;
+import attacks;
 
 void main (char[][] args) {
     Position p;
@@ -21,6 +23,10 @@ void main (char[][] args) {
     t.p.printPosition();
     writeln;
     
+    InitializeMasks();
+    InitializeKnightAttacks();
+
+/*    
     InitializeHashTables();
     
     foreach (line; File("/home/nelson/data/chess/data/test.fen").byLine()) {
@@ -64,6 +70,7 @@ void main (char[][] args) {
     }
     writefln("%s positions read, %s errors encountered.", fen_count, error_count);
     writefln("total hash table collisions %s",collisions);
+*/    
 }
     
     
