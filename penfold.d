@@ -24,7 +24,7 @@ void main (char[][] args) {
     writeln;
     
     InitializeMasks();
-    InitializeKnightAttacks();
+    InitializeAttacks();
 
 /*    
     InitializeHashTables();

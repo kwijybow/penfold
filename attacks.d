@@ -23,12 +23,9 @@ ulong genKightAttack(int sq) {
     return (to_board);
 }
 
-void InitializeKnightAttacks() {
+void InitializeAttacks() {
 
     for (int i=0; i<64; i++) {
         knight_attacks[i] = genKightAttack(i);
-        writeln("square = ",i);
-        printBitBoard(knight_attacks[i]);
-        writeln;
     }
 }
