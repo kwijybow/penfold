@@ -4,24 +4,15 @@ import hash;
 import chess;
 
 class Position {
-//    enum Color { white = 0, black = 1 };
-//    enum Piece { pawn = 1, knight = 2, bishop = 3, rook = 4, queen = 5, king = 6 };
-//    enum Castle { none = 0, king = 1, queen = 2, both = 3 }
     
     Color ctm;
-    ulong whitepawns;
-    ulong whiterooks;
-    ulong whiteknights;
-    ulong whitebishops;
-    ulong whitequeens;
-    ulong whiteking;
-    ulong blackpawns;
-    ulong blackrooks;
-    ulong blackknights;
-    ulong blackbishops;
-    ulong blackqueens;
-    ulong blackking;
-    ulong occupied;
+    ulong pawns[2];
+    ulong rooks[2];
+    ulong knights[2];
+    ulong bishops[2];
+    ulong queens[2];
+    ulong kings[2];
+    ulong occupied[2];
     ulong empty;
     ulong hash_key;
     ulong pawn_hash_key;
@@ -30,30 +21,22 @@ class Position {
     Castle wcastle;
     Castle bcastle;
     string enpassant_target;
-    int[string] squarenum;
-    string[int] squarename;
     string displayBoard[64];
-    
-    
     
     this() {
         int square = 0;
         string square_by_name;
         
-        whitepawns    = 0;
-        whiterooks    = 0;
-        whiteknights  = 0;
-        whitebishops  = 0;
-        whitequeens   = 0;
-        whiteking     = 0;
-        blackpawns    = 0;
-        blackrooks    = 0;
-        blackknights  = 0;
-        blackbishops  = 0;
-        blackqueens   = 0;
-        blackking     = 0;
-        occupied      = 0;
-        empty         = ~occupied;
+        for (int i=0; i<2; i++) {
+            pawns[i]    = 0;
+            rooks[i]    = 0;
+            knights[i]  = 0;
+            bishops[i]  = 0;
+            queens[i]   = 0;
+            kings[i]    = 0;
+            occupied[i] = 0;
+        }
+        empty         = ~(occupied[0] | occupied[1]);
         hash_key      = 0;
         pawn_hash_key = 0;
         move_number   = 0;
@@ -64,9 +47,6 @@ class Position {
         
         foreach(row; ["1","2","3","4","5","6","7","8"]) {
             foreach(col; ["h","g","f","e","d","c","b","a"]) {
-                square_by_name = col ~ row;
-                squarenum[square_by_name] = square;
-                squarename[square] = square_by_name;
                 displayBoard[square] = " ".dup;
                 square++;
             }
@@ -79,73 +59,73 @@ class Position {
         
         for(int i=0; i<64; i++)
             displayBoard[i] = " ".dup;
-        tempBoard = blackpawns;
+        tempBoard = pawns[Color.black];
         while (tempBoard) {
             sq = bsf(tempBoard);
             tempBoard &= tempBoard - 1;
             displayBoard[sq] = "p".dup;
         }
-        tempBoard = whitepawns;
+        tempBoard = pawns[Color.white];
         while (tempBoard) {
             sq = bsf(tempBoard);
             tempBoard &= tempBoard - 1;
             displayBoard[sq] = "P".dup;
         }
-        tempBoard = blackrooks;
+        tempBoard = rooks[Color.black];
         while (tempBoard) {
             sq = bsf(tempBoard);
             tempBoard &= tempBoard - 1;
             displayBoard[sq] = "r".dup;
         }
-        tempBoard = whiterooks;
+        tempBoard = rooks[Color.white];
         while (tempBoard) {
             sq = bsf(tempBoard);
             tempBoard &= tempBoard - 1;
             displayBoard[sq] = "R".dup;
         }
-        tempBoard = blackknights;
+        tempBoard = knights[Color.black];
         while (tempBoard) {
             sq = bsf(tempBoard);
             tempBoard &= tempBoard - 1;
             displayBoard[sq] = "n".dup;
         }
-        tempBoard = whiteknights;
+        tempBoard = knights[Color.white];
         while (tempBoard) {
             sq = bsf(tempBoard);
             tempBoard &= tempBoard - 1;
             displayBoard[sq] = "N".dup;
         }
-        tempBoard = blackbishops;
+        tempBoard = bishops[Color.black];
         while (tempBoard) {
             sq = bsf(tempBoard);
             tempBoard &= tempBoard - 1;
             displayBoard[sq] = "b".dup;
         }
-        tempBoard = whitebishops;
+        tempBoard = bishops[Color.white];
         while (tempBoard) {
             sq = bsf(tempBoard);
             tempBoard &= tempBoard - 1;
             displayBoard[sq] = "B".dup;
         }
-        tempBoard = blackqueens;
+        tempBoard = queens[Color.black];
         while (tempBoard) {
             sq = bsf(tempBoard);
             tempBoard &= tempBoard - 1;
             displayBoard[sq] = "q".dup;
         }
-        tempBoard = whitequeens;
+        tempBoard = queens[Color.white];
         while (tempBoard) {
             sq = bsf(tempBoard);
             tempBoard &= tempBoard - 1;
             displayBoard[sq] = "Q".dup;
         }
-        tempBoard = blackking;
+        tempBoard = kings[Color.black];
         while (tempBoard) {
             sq = bsf(tempBoard);
             tempBoard &= tempBoard - 1;
             displayBoard[sq] = "k".dup;
         }
-        tempBoard = whiteking;
+        tempBoard = kings[Color.white];
         while (tempBoard) {
             sq = bsf(tempBoard);
             tempBoard &= tempBoard - 1;
@@ -154,25 +134,32 @@ class Position {
     }
 
     void updateOccupied() {
-        occupied = 0;
-        occupied |= (blackpawns | whitepawns);
-        occupied |= (blackrooks | whiterooks);
-        occupied |= (blackknights | whiteknights);
-        occupied |= (blackbishops | whitebishops);
-        occupied |= (blackqueens | whitequeens);
-        occupied |= (blackking | whiteking);
-        empty = ~occupied;
+        occupied[Color.white] = 0;
+        occupied[Color.black] = 0;
+        occupied[Color.white] |= pawns[Color.white];
+        occupied[Color.white] |= rooks[Color.white];
+        occupied[Color.white] |= knights[Color.white];
+        occupied[Color.white] |= bishops[Color.white];
+        occupied[Color.white] |= queens[Color.white];
+        occupied[Color.white] |= kings[Color.white];
+        occupied[Color.black] |= pawns[Color.black];
+        occupied[Color.black] |= rooks[Color.black];
+        occupied[Color.black] |= knights[Color.black];
+        occupied[Color.black] |= bishops[Color.black];
+        occupied[Color.black] |= queens[Color.black];
+        occupied[Color.black] |= kings[Color.black];
+        empty = ~(occupied[Color.white] | occupied[Color.black]);
     }
     
-    void hashPiece(Color color, Piece piece, int square) {
+    void hashPiece(int color, int piece, int square) {
         hash_key ^= randoms[color][piece][square];
     }
 
-    void hashPawn(Color color, int square) {
+    void hashPawn(int color, int square) {
         pawn_hash_key ^= randoms[color][Piece.pawn][square];
     }
     
-    void hashCastle(Color color, Castle castling) {
+    void hashCastle(int color, Castle castling) {
         if (castling == Castle.none)
             return;
         else if (castling == Castle.king)
@@ -189,93 +176,48 @@ class Position {
         hash_key ^= enpassant_random[square];
     }
     
-    void dropPiece (Color color, Piece piece, string square) {
+    void dropPiece (int color, int piece, string square) {
         ulong one = 1;
         
         switch (piece) {
             case Piece.pawn:
-                if (color == Color.black) {
-                    blackpawns |= (one << squarenum[square]);
-                    hashPiece(Color.black, Piece.pawn, squarenum[square]);
-                    hashPawn(Color.black, squarenum[square]);
-                }
-                else {
-                    whitepawns |= (one << squarenum[square]);
-                    hashPiece(Color.white, Piece.pawn, squarenum[square]);
-                    hashPawn(Color.white, squarenum[square]);
-                }
+                pawns[color] |= (one << squarenum[square]);
+                hashPawn(color, squarenum[square]);
                 break;
             case Piece.rook:
-                if (color == Color.black) {
-                    blackrooks |= (one << squarenum[square]);
-                    hashPiece(Color.black, Piece.rook, squarenum[square]);
-                }
-                else {
-                    whiterooks |= (one << squarenum[square]);
-                    hashPiece(Color.white, Piece.rook, squarenum[square]);
-                }    
+                rooks[color] |= (one << squarenum[square]);
                 break;
             case Piece.knight:
-                if (color == Color.black) {
-                    blackknights |= (one << squarenum[square]);
-                    hashPiece(Color.black, Piece.knight, squarenum[square]);
-                }    
-                else {
-                    whiteknights |= (one << squarenum[square]);
-                    hashPiece(Color.white, Piece.knight, squarenum[square]);
-                }
+                knights[color] |= (one << squarenum[square]);
                 break;
             case Piece.bishop:
-                if (color == Color.black) {
-                    blackbishops |= (one << squarenum[square]);
-                    hashPiece(Color.black, Piece.bishop, squarenum[square]);
-                }
-                else {
-                    whitebishops |= (one << squarenum[square]);
-                    hashPiece(Color.white, Piece.bishop, squarenum[square]);
-                }
+                bishops[color] |= (one << squarenum[square]);
                 break;
             case Piece.queen:
-                if (color == Color.black) {
-                    blackqueens |= (one << squarenum[square]);
-                    hashPiece(Color.black, Piece.queen, squarenum[square]);
-                }
-                else {
-                    whitequeens |= (one << squarenum[square]);
-                    hashPiece(Color.white, Piece.queen, squarenum[square]);
-                }
+                queens[color] |= (one << squarenum[square]);
                 break;
             case Piece.king:
-                if (color == Color.black) {
-                    blackking |= (one << squarenum[square]);
-                    hashPiece(Color.black, Piece.king, squarenum[square]);
-                }    
-                else {
-                    whiteking |= (one << squarenum[square]);
-                    hashPiece(Color.white, Piece.king, squarenum[square]);
-                }    
+                kings[color] |= (one << squarenum[square]);
                 break;
             default:
                 break;
         }
+        hashPiece(color, piece, squarenum[square]);
         updateOccupied();
     }
     
     void clearPosition() {
-        whitepawns    = 0;
-        whiterooks    = 0;
-        whiteknights  = 0;
-        whitebishops  = 0;
-        whitequeens   = 0;
-        whiteking     = 0;
-        blackpawns    = 0;
-        blackrooks    = 0;
-        blackknights  = 0;
-        blackbishops  = 0;
-        blackqueens   = 0;
-        blackking     = 0;
-        occupied      = 0;
-        empty         = ~occupied;
+    
+        for (int i=0; i<2; i++) {
+            pawns[i]    = 0;
+            rooks[i]    = 0;
+            knights[i]  = 0;
+            bishops[i]  = 0;
+            queens[i]   = 0;
+            kings[i]    = 0;
+            occupied[i] = 0;
+        }
+        empty         = ~(occupied[0] | occupied[1]); 
         hash_key      = 0;
         pawn_hash_key = 0;
         move_number   = 0;
@@ -323,22 +265,6 @@ class Position {
         writefln("hash_key = %s", hash_key);
         writefln("pawn_hash_key = %s", pawn_hash_key);
     }  
-    
-    void printBitBoard(ulong board) {
-        int i, j, x;
-
-        writeln;
-        for (i = 56; i >= 0; i -= 8) {
-            x = (board >> i) & 255;
-            for (j = 1; j < 256; j = j << 1)
-                if (x & j)
-                    writef("X ");
-                else
-                    writef("- ");
-            writef("\n");
-        }
-        writeln;
-    }
     
     bool setFEN(char[] fenstring) {
           int i, match, num, pos, square;
@@ -479,46 +405,12 @@ class Position {
           if (ok) {
               clearPosition();
               for (i=63; i>=0; i--) {
-                  switch (tboard[i]) {
-                      case -1:
-                          dropPiece(Color.black, Piece.pawn, squarename[i]);
-                          break;
-                      case 1:
-                          dropPiece(Color.white, Piece.pawn, squarename[i]);
-                          break;
-                      case -2:
-                          dropPiece(Color.black, Piece.knight, squarename[i]);
-                          break;
-                      case 2:
-                          dropPiece(Color.white, Piece.knight, squarename[i]);
-                          break;
-                      case -3:
-                          dropPiece(Color.black, Piece.bishop, squarename[i]);
-                          break;
-                      case 3:
-                          dropPiece(Color.white, Piece.bishop, squarename[i]);
-                          break;
-                      case -4:
-                          dropPiece(Color.black, Piece.rook, squarename[i]);
-                          break;
-                      case 4:
-                          dropPiece(Color.white, Piece.rook, squarename[i]);
-                          break;
-                      case -5:
-                          dropPiece(Color.black, Piece.queen, squarename[i]);
-                          break;
-                      case 5:
-                          dropPiece(Color.white, Piece.queen, squarename[i]);
-                          break;
-                      case -6:
-                          dropPiece(Color.black, Piece.king, squarename[i]);
-                          break;
-                      case 6:
-		          dropPiece(Color.white, Piece.king, squarename[i]);
-		          break;
-		      default:
-		          break;
-		  }
+                  if (tboard[i] < 0) {
+                      dropPiece(Color.black, -tboard[i], squarename[i]);
+                  }
+                  else if (tboard[i] > 0) {
+                       dropPiece(Color.white, tboard[i], squarename[i]);
+                  }
 		  updateOccupied();
               }
               ctm = twtm;
@@ -596,8 +488,6 @@ class Position {
           fenstring = fenstring ~ to!string(draw_moves);
           fenstring = fenstring ~ " ";
           fenstring = fenstring ~ to!string(move_number);
-
-          //writefln("%s",fenstring);
      
          return ok;
     } 

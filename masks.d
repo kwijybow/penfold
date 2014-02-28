@@ -1,6 +1,7 @@
 import std.stdio, std.string, std.array, std.conv;
 import core.bitop;
 import bitboard;
+import chess;
 
 
 
@@ -9,12 +10,16 @@ ulong rankmask[8] = [0,0,0,0,0,0,0,0];
 ulong[string] filemask_by_name;
 ulong[string] rankmask_by_name;
 ulong[string] avoidwrap_by_name;
+ulong clear_mask[65];
+ulong set_mask[65];
 
 void InitializeMasks() {
 
     for (int i=0; i<64; i++) {
         filemask[(i&7)] |= to!ulong(1) << i;
         rankmask[(i>>3)] |= to!ulong(1) << i;
+        clear_mask[i] = ~(to!ulong(1) << i);
+        set_mask[i] = to!ulong(1) << i;
     }
     filemask_by_name["a"] = filemask[7];
     filemask_by_name["b"] = filemask[6];
@@ -34,4 +39,6 @@ void InitializeMasks() {
     rankmask_by_name["7"] = rankmask[6];
     rankmask_by_name["8"] = rankmask[7];
     
+    clear_mask[BAD_SQUARE] = 0;
+    set_mask[BAD_SQUARE] = 0;
 }

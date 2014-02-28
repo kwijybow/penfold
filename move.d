@@ -3,6 +3,7 @@ import core.bitop;
 import hash;
 import chess;
 import position;
+import tree;
 
 /*
  *******************************************************************************
@@ -16,12 +17,12 @@ import position;
  *                                                                             *
  *******************************************************************************
  */
-/* 
-int *GenerateCaptures(TREE * RESTRICT tree, int ply, int side, int *move) {
-  uint64_t target, piecebd, moves;
-  uint64_t promotions, pcapturesl, pcapturesr;
+ 
+ref int GenerateCaptures(ref Tree tree, int ply, int side, ref int move) {
+  ulong target, piecebd, moves;
+  ulong promotions, pcapturesl, pcapturesr;
   int from, to, temp, common, enemy = Flip(side);
-*/
+
 /*
  ************************************************************
  *                                                          *
@@ -32,12 +33,13 @@ int *GenerateCaptures(TREE * RESTRICT tree, int ply, int side, int *move) {
  *                                                          *
  ************************************************************
  */
- /*
-  for (piecebd = Knights(side); piecebd; Clear(from, piecebd)) {
-    from = Advanced(side, piecebd);
-    moves = knight_attacks[from] & Occupied(enemy);
-    temp = from + (knight << 12);
-    Unpack(side, move, moves, temp);
+ 
+  for (piecebd = tree.p.knights[side]; piecebd; Clear(from, piecebd)) {
+//    from = Advanced(side, piecebd);
+//    moves = knight_attacks[from] & Occupied(enemy);
+//    temp = from + (knight << 12);
+//    Unpack(side, move, moves, temp);
   }
+
+ return (move);
 }
-*/

@@ -5,6 +5,7 @@ import chess;
 import tree;
 import masks;
 import attacks;
+import move;
 
 void main (char[][] args) {
     Position p;
@@ -17,17 +18,21 @@ void main (char[][] args) {
     int val = 0;
     int max = 0;
     int collisions = 0;
+    int mvp;
+    int test;
+
+    InitializeSquares();
+    InitializeMasks();
+    InitializeAttacks();
+    InitializeHashTables();    
+    
     
     t = new Tree;
     t.p.startPosition();
     t.p.printPosition();
     writeln;
     
-    InitializeMasks();
-    InitializeAttacks();
-
-/*    
-    InitializeHashTables();
+    mvp = GenerateCaptures(t, 1, t.p.ctm, test);
     
     foreach (line; File("/home/nelson/data/chess/data/test.fen").byLine()) {
         line = chomp(line);
@@ -70,7 +75,7 @@ void main (char[][] args) {
     }
     writefln("%s positions read, %s errors encountered.", fen_count, error_count);
     writefln("total hash table collisions %s",collisions);
-*/    
+    
 }
     
     
