@@ -18,3 +18,8 @@ struct Path {
   ubyte pathd;
 };
 
+enum Color { white = 0, black = 1 };
+enum Piece { pawn = 1, knight = 2, bishop = 3, rook = 4, queen = 5, king = 6 };
+enum Castle { none = 0, king = 1, queen = 2, both = 3 }
+    
+
