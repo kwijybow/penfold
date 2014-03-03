@@ -35,9 +35,9 @@ ref int GenerateCaptures(ref Tree tree, int ply, int side, ref int move) {
  */
  
   for (piecebd = tree.p.knights[side]; piecebd; Clear(from, piecebd)) {
-//    from = Advanced(side, piecebd);
-//    moves = knight_attacks[from] & Occupied(enemy);
-//    temp = from + (knight << 12);
+    from = Advanced(side, piecebd);
+    moves = knight_attacks[from] & tree.p.occupied[enemy];
+    temp = from + (Piece.knight << 12);
 //    Unpack(side, move, moves, temp);
   }
 

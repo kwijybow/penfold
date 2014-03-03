@@ -1,3 +1,5 @@
+import std.math;
+import core.bitop;
 import masks;
 
 immutable MATE = 32768;
@@ -39,6 +41,23 @@ ulong ClearMask(int a) {
 void Clear(int a, ref ulong b) {
     b &= ClearMask(a);
 }
+
+int Advanced (int side ulong bitboard) {
+    int b = 0;
+    if (side == Color.white) 
+        b = bsr(bitboard);
+    else
+        b = bsf(bitboard);
+    return b;   
+}
+
+void Unpack (int side, ref int mptr, ulong m, int t) {
+  int to;
+  for ( ; m ; Clear(to, m)) {
+    to = Advanced(side, m);       
+    *mptr++ = t | (to << 6) | (abs(PcOnSq(to)) << 15);
+  }
+}  
     
 void InitializeSquares() {
     int square = 0;
