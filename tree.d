@@ -11,6 +11,7 @@ class Tree {
     Path pv[MAXPLY];
     int hash_move[MAXPLY];
     int curmv[MAXPLY];
+    int[] move_list[MAXPLY];
     
     this() {
         p = new Position();

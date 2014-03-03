@@ -18,8 +18,9 @@ void main (char[][] args) {
     int val = 0;
     int max = 0;
     int collisions = 0;
-    int mvp;
-    int test;
+    int move_index = 0;
+    int num_moves = 0;
+    
 
     InitializeSquares();
     InitializeMasks();
@@ -32,12 +33,25 @@ void main (char[][] args) {
     t.p.printPosition();
     writeln;
     
-    mvp = GenerateCaptures(t, 1, t.p.ctm, test);
+    t.move_list[1].length = 5120;
+    t.move_list[1][] = 0;
+    num_moves = GenerateCaptures(t, 1, t.p.ctm, move_index);
+    for (int i=0; i< 10; i++)
+        writef("%s ",t.move_list[1][i]);
+    writeln;
     
     foreach (line; File("/home/nelson/data/chess/data/test.fen").byLine()) {
         line = chomp(line);
         //writefln("%s",line);
         ok = t.p.setFEN(line);
+        t.move_list[1][] = 0;
+        move_index = 0;
+        num_moves = 0;
+        num_moves = GenerateCaptures(t, 1, t.p.ctm, move_index);
+        writefln("num_moves %s, move_index %s",num_moves, move_index);
+        for (int i=0; i< 10; i++)
+            writef("%s ",t.move_list[1][i]);
+        writeln;        
         if (ok) {
             fen_count++;
             if (HashProbe(t, 1, 1, t.p.ctm, 0, 0, val) > 0) {

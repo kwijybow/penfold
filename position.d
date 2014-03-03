@@ -5,7 +5,7 @@ import chess;
 
 class Position {
     
-    Color ctm;
+    int ctm;
     ulong pawns[2];
     ulong rooks[2];
     ulong knights[2];
@@ -22,6 +22,7 @@ class Position {
     Castle bcastle;
     string enpassant_target;
     string displayBoard[64];
+    int board[64];
     
     this() {
         int square = 0;
@@ -132,6 +133,87 @@ class Position {
             displayBoard[sq] = "K".dup;
         }
     }
+    
+    void updateBoard() {
+        ulong tempBoard = 0;
+        int sq;
+        
+        for(int i=0; i<64; i++)
+            board[i] = 0;
+        tempBoard = pawns[Color.black];
+        while (tempBoard) {
+            sq = bsf(tempBoard);
+            tempBoard &= tempBoard - 1;
+            board[sq] = -1;
+        }
+        tempBoard = pawns[Color.white];
+        while (tempBoard) {
+            sq = bsf(tempBoard);
+            tempBoard &= tempBoard - 1;
+            board[sq] = 1;
+        }
+        tempBoard = rooks[Color.black];
+        while (tempBoard) {
+            sq = bsf(tempBoard);
+            tempBoard &= tempBoard - 1;
+            board[sq] = -4;
+        }
+        tempBoard = rooks[Color.white];
+        while (tempBoard) {
+            sq = bsf(tempBoard);
+            tempBoard &= tempBoard - 1;
+            board[sq] = 4;
+        }
+        tempBoard = knights[Color.black];
+        while (tempBoard) {
+            sq = bsf(tempBoard);
+            tempBoard &= tempBoard - 1;
+            board[sq] = -2;
+        }
+        tempBoard = knights[Color.white];
+        while (tempBoard) {
+            sq = bsf(tempBoard);
+            tempBoard &= tempBoard - 1;
+            board[sq] = 2;
+        }
+        tempBoard = bishops[Color.black];
+        while (tempBoard) {
+            sq = bsf(tempBoard);
+            tempBoard &= tempBoard - 1;
+            board[sq] = -3;
+        }
+        tempBoard = bishops[Color.white];
+        while (tempBoard) {
+            sq = bsf(tempBoard);
+            tempBoard &= tempBoard - 1;
+            board[sq] = 3;
+        }
+        tempBoard = queens[Color.black];
+        while (tempBoard) {
+            sq = bsf(tempBoard);
+            tempBoard &= tempBoard - 1;
+            board[sq] = -5;
+        }
+        tempBoard = queens[Color.white];
+        while (tempBoard) {
+            sq = bsf(tempBoard);
+            tempBoard &= tempBoard - 1;
+            board[sq] = 5;
+        }
+        tempBoard = kings[Color.black];
+        while (tempBoard) {
+            sq = bsf(tempBoard);
+            tempBoard &= tempBoard - 1;
+            board[sq] = -6;
+        }
+        tempBoard = kings[Color.white];
+        while (tempBoard) {
+            sq = bsf(tempBoard);
+            tempBoard &= tempBoard - 1;
+            board[sq] = 6;
+        }
+    }
+    
 
     void updateOccupied() {
         occupied[Color.white] = 0;

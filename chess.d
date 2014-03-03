@@ -15,7 +15,6 @@ immutable HASH_MISS = 0;
 immutable MAX_DRAFT = 256;
 int null_depth = 3;
 int iteration_depth = 0;
-int move_list[5120];
 int[string] squarenum;
 string[int] squarename;
 
@@ -42,22 +41,15 @@ void Clear(int a, ref ulong b) {
     b &= ClearMask(a);
 }
 
-int Advanced (int side ulong bitboard) {
+int Advanced(int side, ulong bitboard) {
     int b = 0;
     if (side == Color.white) 
         b = bsr(bitboard);
     else
         b = bsf(bitboard);
-    return b;   
+    return (b);   
 }
 
-void Unpack (int side, ref int mptr, ulong m, int t) {
-  int to;
-  for ( ; m ; Clear(to, m)) {
-    to = Advanced(side, m);       
-    *mptr++ = t | (to << 6) | (abs(PcOnSq(to)) << 15);
-  }
-}  
     
 void InitializeSquares() {
     int square = 0;
