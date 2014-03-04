@@ -17,6 +17,17 @@ int null_depth = 3;
 int iteration_depth = 0;
 int[string] squarenum;
 string[int] squarename;
+int lower_b = 10;
+int mobility_score_b[4] = [ 1, 2, 3, 4 ];
+int mobility_score_r[4] = [ 1, 2, 3, 4 ];
+int mob_curve_r[48] = [
+  -27,-23,-21,-19,-15,-10, -9, -8,
+   -7, -6, -5, -4, -3, -2, -1,  0,
+    1,  2,  3,  4,  5,  6,  7,  8,
+    9, 10, 11, 12, 13, 14, 15, 16,
+   17, 18, 19, 20, 21, 22, 23, 24,
+   25, 26, 27, 28, 29, 30, 31, 32
+];
 
 struct Path {
   int path[MAXPLY];
@@ -40,6 +51,11 @@ ulong ClearMask(int a) {
 void Clear(int a, ref ulong b) {
     b &= ClearMask(a);
 }
+
+ulong SetMask(int a) {
+    return(set_mask[a]);
+}
+
 
 int Advanced(int side, ulong bitboard) {
     int b = 0;

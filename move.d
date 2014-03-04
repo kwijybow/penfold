@@ -64,7 +64,7 @@ int GenerateCaptures(ref Tree tree, int ply, int side, ref int move_index) {
     
     for (piecebd = tree.p.bishops[side]; piecebd; Clear(from, piecebd)) {
         from = Advanced(side, piecebd);
-//        moves = knight_attacks[from] & tree.p.occupied[enemy];
+        moves = AttacksBishop(from, (tree.p.occupied[Color.white] | tree.p.occupied[Color.white])) & tree.p.occupied[enemy];
         temp = from + (Piece.bishop << 12);
         to = Advanced(side, moves);
         for ( ; moves ; Clear(to, moves)) {

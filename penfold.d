@@ -25,6 +25,7 @@ void main (char[][] args) {
     InitializeSquares();
     InitializeMasks();
     InitializeAttacks();
+    InitializeMagic();
     InitializeHashTables();    
     
     
@@ -48,24 +49,25 @@ void main (char[][] args) {
         move_index = 0;
         num_moves = 0;
         num_moves = GenerateCaptures(t, 1, t.p.ctm, move_index);
-        writefln("num_moves %s, move_index %s",num_moves, move_index);
-        for (int i=0; i< 10; i++)
-            writef("%s ",t.move_list[1][i]);
-        writeln;        
+//        writefln("num_moves %s, move_index %s",num_moves, move_index);
+//        for (int i=0; i< 10; i++)
+//            writef("%s ",t.move_list[1][i]);
+//        writeln;        
         if (ok) {
             fen_count++;
+            if ((fen_count % 100000) == 0) {writefln("fen_count = %s",fen_count);}
             if (HashProbe(t, 1, 1, t.p.ctm, 0, 0, val) > 0) {
                 //writefln("hash key %s",p.hash_key);
                 collisions++;
                 value = val + 1;
-                if (value > max) {
-                    max = value;
-                    writefln("new max = %s",max);
-                    writefln("total collisions = %s",collisions);
+//                if (value > max) {
+//                    max = value;
+//                    writefln("new max = %s",max);
+//                    writefln("total collisions = %s",collisions);
                     //writefln("hash key %s",p.hash_key);
-                    writefln("%s",line);
-                    t.p.printPosition();
-                }
+//                    writefln("%s",line);
+//                    t.p.printPosition();
+//                }
                 //writefln("value = %s",value);
             }
             //value++;

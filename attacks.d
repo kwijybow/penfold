@@ -64,145 +64,145 @@ uint magic_bishop_shift[64] = [
   59, 59, 59, 59, 59, 59, 59, 59,
   58, 59, 59, 59, 59, 59, 59, 58
 ];
-const ulong magic_bishop_table[5248] = [0];
-const ulong *magic_bishop_indices[64] = [
-  magic_bishop_table.ptr + 4992, magic_bishop_table.ptr + 2624,
-  magic_bishop_table.ptr + 256, magic_bishop_table.ptr + 896,
-  magic_bishop_table.ptr + 1280, magic_bishop_table.ptr + 1664,
-  magic_bishop_table.ptr + 4800, magic_bishop_table.ptr + 5120,
-  magic_bishop_table.ptr + 2560, magic_bishop_table.ptr + 2656,
-  magic_bishop_table.ptr + 288, magic_bishop_table.ptr + 928,
-  magic_bishop_table.ptr + 1312, magic_bishop_table.ptr + 1696,
-  magic_bishop_table.ptr + 4832, magic_bishop_table.ptr + 4928,
-  magic_bishop_table.ptr + 0, magic_bishop_table.ptr + 128,
-  magic_bishop_table.ptr + 320, magic_bishop_table.ptr + 960,
-  magic_bishop_table.ptr + 1344, magic_bishop_table.ptr + 1728,
-  magic_bishop_table.ptr + 2304, magic_bishop_table.ptr + 2432,
-  magic_bishop_table.ptr + 32, magic_bishop_table.ptr + 160,
-  magic_bishop_table.ptr + 448, magic_bishop_table.ptr + 2752,
-  magic_bishop_table.ptr + 3776, magic_bishop_table.ptr + 1856,
-  magic_bishop_table.ptr + 2336, magic_bishop_table.ptr + 2464,
-  magic_bishop_table.ptr + 64, magic_bishop_table.ptr + 192,
-  magic_bishop_table.ptr + 576, magic_bishop_table.ptr + 3264,
-  magic_bishop_table.ptr + 4288, magic_bishop_table.ptr + 1984,
-  magic_bishop_table.ptr + 2368, magic_bishop_table.ptr + 2496,
-  magic_bishop_table.ptr + 96, magic_bishop_table.ptr + 224,
-  magic_bishop_table.ptr + 704, magic_bishop_table.ptr + 1088,
-  magic_bishop_table.ptr + 1472, magic_bishop_table.ptr + 2112,
-  magic_bishop_table.ptr + 2400, magic_bishop_table.ptr + 2528,
-  magic_bishop_table.ptr + 2592, magic_bishop_table.ptr + 2688,
-  magic_bishop_table.ptr + 832, magic_bishop_table.ptr + 1216,
-  magic_bishop_table.ptr + 1600, magic_bishop_table.ptr + 2240,
-  magic_bishop_table.ptr + 4864, magic_bishop_table.ptr + 4960,
-  magic_bishop_table.ptr + 5056, magic_bishop_table.ptr + 2720,
-  magic_bishop_table.ptr + 864, magic_bishop_table.ptr + 1248,
-  magic_bishop_table.ptr + 1632, magic_bishop_table.ptr + 2272,
-  magic_bishop_table.ptr + 4896, magic_bishop_table.ptr + 5184
+ulong magic_bishop_table[5248] = [0];
+int magic_bishop_indices[64] = [
+  4992, 2624,
+  256, 896,
+  1280, 1664,
+  4800, 5120,
+  2560, 2656,
+  288, 928,
+  1312, 1696,
+  4832, 4928,
+  0, 128,
+  320, 960,
+  1344, 1728,
+  2304, 2432,
+  32, 160,
+  448, 2752,
+  3776, 1856,
+  2336, 2464,
+  64, 192,
+  576, 3264,
+  4288, 1984,
+  2368, 2496,
+  96, 224,
+  704, 1088,
+  1472, 2112,
+  2400, 2528,
+  2592, 2688,
+  832, 1216,
+  1600, 2240,
+  4864, 4960,
+  5056, 2720,
+  864, 1248,
+  1632, 2272,
+  4896, 5184
 ];
-const short magic_bishop_mobility_table[5248];
-const short *magic_bishop_mobility_indices[64] = [
-  magic_bishop_mobility_table.ptr + 4992, magic_bishop_mobility_table.ptr + 2624,
-  magic_bishop_mobility_table.ptr + 256, magic_bishop_mobility_table.ptr + 896,
-  magic_bishop_mobility_table.ptr + 1280, magic_bishop_mobility_table.ptr + 1664,
-  magic_bishop_mobility_table.ptr + 4800, magic_bishop_mobility_table.ptr + 5120,
-  magic_bishop_mobility_table.ptr + 2560, magic_bishop_mobility_table.ptr + 2656,
-  magic_bishop_mobility_table.ptr + 288, magic_bishop_mobility_table.ptr + 928,
-  magic_bishop_mobility_table.ptr + 1312, magic_bishop_mobility_table.ptr + 1696,
-  magic_bishop_mobility_table.ptr + 4832, magic_bishop_mobility_table.ptr + 4928,
-  magic_bishop_mobility_table.ptr + 0, magic_bishop_mobility_table.ptr + 128,
-  magic_bishop_mobility_table.ptr + 320, magic_bishop_mobility_table.ptr + 960,
-  magic_bishop_mobility_table.ptr + 1344, magic_bishop_mobility_table.ptr + 1728,
-  magic_bishop_mobility_table.ptr + 2304, magic_bishop_mobility_table.ptr + 2432,
-  magic_bishop_mobility_table.ptr + 32, magic_bishop_mobility_table.ptr + 160,
-  magic_bishop_mobility_table.ptr + 448, magic_bishop_mobility_table.ptr + 2752,
-  magic_bishop_mobility_table.ptr + 3776, magic_bishop_mobility_table.ptr + 1856,
-  magic_bishop_mobility_table.ptr + 2336, magic_bishop_mobility_table.ptr + 2464,
-  magic_bishop_mobility_table.ptr + 64, magic_bishop_mobility_table.ptr + 192,
-  magic_bishop_mobility_table.ptr + 576, magic_bishop_mobility_table.ptr + 3264,
-  magic_bishop_mobility_table.ptr + 4288, magic_bishop_mobility_table.ptr + 1984,
-  magic_bishop_mobility_table.ptr + 2368, magic_bishop_mobility_table.ptr + 2496,
-  magic_bishop_mobility_table.ptr + 96, magic_bishop_mobility_table.ptr + 224,
-  magic_bishop_mobility_table.ptr + 704, magic_bishop_mobility_table.ptr + 1088,
-  magic_bishop_mobility_table.ptr + 1472, magic_bishop_mobility_table.ptr + 2112,
-  magic_bishop_mobility_table.ptr + 2400, magic_bishop_mobility_table.ptr + 2528,
-  magic_bishop_mobility_table.ptr + 2592, magic_bishop_mobility_table.ptr + 2688,
-  magic_bishop_mobility_table.ptr + 832, magic_bishop_mobility_table.ptr + 1216,
-  magic_bishop_mobility_table.ptr + 1600, magic_bishop_mobility_table.ptr + 2240,
-  magic_bishop_mobility_table.ptr + 4864, magic_bishop_mobility_table.ptr + 4960,
-  magic_bishop_mobility_table.ptr + 5056, magic_bishop_mobility_table.ptr + 2720,
-  magic_bishop_mobility_table.ptr + 864, magic_bishop_mobility_table.ptr + 1248,
-  magic_bishop_mobility_table.ptr + 1632, magic_bishop_mobility_table.ptr + 2272,
-  magic_bishop_mobility_table.ptr + 4896, magic_bishop_mobility_table.ptr + 5184
+short magic_bishop_mobility_table[5248];
+int magic_bishop_mobility_indices[64] = [
+  4992, 2624,
+  256, 896,
+  1280, 1664,
+  4800, 5120,
+  2560, 2656,
+  288, 928,
+  1312, 1696,
+  4832, 4928,
+  0, 128,
+  320, 960,
+  1344, 1728,
+  2304, 2432,
+  32, 160,
+  448, 2752,
+  3776, 1856,
+  2336, 2464,
+  64, 192,
+  576, 3264,
+  4288, 1984,
+  2368, 2496,
+  96, 224,
+  704, 1088,
+  1472, 2112,
+  2400, 2528,
+  2592, 2688,
+  832, 1216,
+  1600, 2240,
+  4864, 4960,
+  5056, 2720,
+  864, 1248,
+  1632, 2272,
+  4896, 5184
 ];
-const ulong magic_rook_table[102400];
-const ulong *magic_rook_indices[64] = [
-  magic_rook_table.ptr + 86016, magic_rook_table.ptr + 73728,
-  magic_rook_table.ptr + 36864, magic_rook_table.ptr + 43008,
-  magic_rook_table.ptr + 47104, magic_rook_table.ptr + 51200,
-  magic_rook_table.ptr + 77824, magic_rook_table.ptr + 94208,
-  magic_rook_table.ptr + 69632, magic_rook_table.ptr + 32768,
-  magic_rook_table.ptr + 38912, magic_rook_table.ptr + 10240,
-  magic_rook_table.ptr + 14336, magic_rook_table.ptr + 53248,
-  magic_rook_table.ptr + 57344, magic_rook_table.ptr + 81920,
-  magic_rook_table.ptr + 24576, magic_rook_table.ptr + 33792,
-  magic_rook_table.ptr + 6144, magic_rook_table.ptr + 11264,
-  magic_rook_table.ptr + 15360, magic_rook_table.ptr + 18432,
-  magic_rook_table.ptr + 58368, magic_rook_table.ptr + 61440,
-  magic_rook_table.ptr + 26624, magic_rook_table.ptr + 4096,
-  magic_rook_table.ptr + 7168, magic_rook_table.ptr + 0,
-  magic_rook_table.ptr + 2048, magic_rook_table.ptr + 19456,
-  magic_rook_table.ptr + 22528, magic_rook_table.ptr + 63488,
-  magic_rook_table.ptr + 28672, magic_rook_table.ptr + 5120,
-  magic_rook_table.ptr + 8192, magic_rook_table.ptr + 1024,
-  magic_rook_table.ptr + 3072, magic_rook_table.ptr + 20480,
-  magic_rook_table.ptr + 23552, magic_rook_table.ptr + 65536,
-  magic_rook_table.ptr + 30720, magic_rook_table.ptr + 34816,
-  magic_rook_table.ptr + 9216, magic_rook_table.ptr + 12288,
-  magic_rook_table.ptr + 16384, magic_rook_table.ptr + 21504,
-  magic_rook_table.ptr + 59392, magic_rook_table.ptr + 67584,
-  magic_rook_table.ptr + 71680, magic_rook_table.ptr + 35840,
-  magic_rook_table.ptr + 39936, magic_rook_table.ptr + 13312,
-  magic_rook_table.ptr + 17408, magic_rook_table.ptr + 54272,
-  magic_rook_table.ptr + 60416, magic_rook_table.ptr + 83968,
-  magic_rook_table.ptr + 90112, magic_rook_table.ptr + 75776,
-  magic_rook_table.ptr + 40960, magic_rook_table.ptr + 45056,
-  magic_rook_table.ptr + 49152, magic_rook_table.ptr + 55296,
-  magic_rook_table.ptr + 79872, magic_rook_table.ptr + 98304
+ulong magic_rook_table[102400];
+int magic_rook_indices[64] = [
+  86016, 73728,
+  36864, 43008,
+  47104, 51200,
+  77824, 94208,
+  69632, 32768,
+  38912, 10240,
+  14336, 53248,
+  57344, 81920,
+  24576, 33792,
+  6144, 11264,
+  15360, 18432,
+  58368, 61440,
+  26624, 4096,
+  7168, 0,
+  2048, 19456,
+  22528, 63488,
+  28672, 5120,
+  8192, 1024,
+  3072, 20480,
+  23552, 65536,
+  30720, 34816,
+  9216, 12288,
+  16384, 21504,
+  59392, 67584,
+  71680, 35840,
+  39936, 13312,
+  17408, 54272,
+  60416, 83968,
+  90112, 75776,
+  40960, 45056,
+  49152, 55296,
+  79872, 98304
 ];
-const short magic_rook_mobility_table[102400];
-const short *magic_rook_mobility_indices[64] = [
-  magic_rook_mobility_table.ptr + 86016, magic_rook_mobility_table.ptr + 73728,
-  magic_rook_mobility_table.ptr + 36864, magic_rook_mobility_table.ptr + 43008,
-  magic_rook_mobility_table.ptr + 47104, magic_rook_mobility_table.ptr + 51200,
-  magic_rook_mobility_table.ptr + 77824, magic_rook_mobility_table.ptr + 94208,
-  magic_rook_mobility_table.ptr + 69632, magic_rook_mobility_table.ptr + 32768,
-  magic_rook_mobility_table.ptr + 38912, magic_rook_mobility_table.ptr + 10240,
-  magic_rook_mobility_table.ptr + 14336, magic_rook_mobility_table.ptr + 53248,
-  magic_rook_mobility_table.ptr + 57344, magic_rook_mobility_table.ptr + 81920,
-  magic_rook_mobility_table.ptr + 24576, magic_rook_mobility_table.ptr + 33792,
-  magic_rook_mobility_table.ptr + 6144, magic_rook_mobility_table.ptr + 11264,
-  magic_rook_mobility_table.ptr + 15360, magic_rook_mobility_table.ptr + 18432,
-  magic_rook_mobility_table.ptr + 58368, magic_rook_mobility_table.ptr + 61440,
-  magic_rook_mobility_table.ptr + 26624, magic_rook_mobility_table.ptr + 4096,
-  magic_rook_mobility_table.ptr + 7168, magic_rook_mobility_table.ptr + 0,
-  magic_rook_mobility_table.ptr + 2048, magic_rook_mobility_table.ptr + 19456,
-  magic_rook_mobility_table.ptr + 22528, magic_rook_mobility_table.ptr + 63488,
-  magic_rook_mobility_table.ptr + 28672, magic_rook_mobility_table.ptr + 5120,
-  magic_rook_mobility_table.ptr + 8192, magic_rook_mobility_table.ptr + 1024,
-  magic_rook_mobility_table.ptr + 3072, magic_rook_mobility_table.ptr + 20480,
-  magic_rook_mobility_table.ptr + 23552, magic_rook_mobility_table.ptr + 65536,
-  magic_rook_mobility_table.ptr + 30720, magic_rook_mobility_table.ptr + 34816,
-  magic_rook_mobility_table.ptr + 9216, magic_rook_mobility_table.ptr + 12288,
-  magic_rook_mobility_table.ptr + 16384, magic_rook_mobility_table.ptr + 21504,
-  magic_rook_mobility_table.ptr + 59392, magic_rook_mobility_table.ptr + 67584,
-  magic_rook_mobility_table.ptr + 71680, magic_rook_mobility_table.ptr + 35840,
-  magic_rook_mobility_table.ptr + 39936, magic_rook_mobility_table.ptr + 13312,
-  magic_rook_mobility_table.ptr + 17408, magic_rook_mobility_table.ptr + 54272,
-  magic_rook_mobility_table.ptr + 60416, magic_rook_mobility_table.ptr + 83968,
-  magic_rook_mobility_table.ptr + 90112, magic_rook_mobility_table.ptr + 75776,
-  magic_rook_mobility_table.ptr + 40960, magic_rook_mobility_table.ptr + 45056,
-  magic_rook_mobility_table.ptr + 49152, magic_rook_mobility_table.ptr + 55296,
-  magic_rook_mobility_table.ptr + 79872, magic_rook_mobility_table.ptr + 98304
+short magic_rook_mobility_table[102400];
+int magic_rook_mobility_indices[64] = [
+  86016, 73728,
+  36864, 43008,
+  47104, 51200,
+  77824, 94208,
+  69632, 32768,
+  38912, 10240,
+  14336, 53248,
+  57344, 81920,
+  24576, 33792,
+  6144, 11264,
+  15360, 18432,
+  58368, 61440,
+  26624, 4096,
+  7168, 0,
+  2048, 19456,
+  22528, 63488,
+  28672, 5120,
+  8192, 1024,
+  3072, 20480,
+  23552, 65536,
+  30720, 34816,
+  9216, 12288,
+  16384, 21504,
+  59392, 67584,
+  71680, 35840,
+  39936, 13312,
+  17408, 54272,
+  60416, 83968,
+  90112, 75776,
+  40960, 45056,
+  49152, 55296,
+  79872, 98304
 ];
 ulong magic_rook[64] = [
   0x0080001020400080UL, 0x0040001000200040UL, 0x0080081000200080UL,
@@ -425,3 +425,201 @@ void InitializeAttacks() {
         pawn_attacks[Color.black][i] = genPawnAttack(Color.black, i);
     }
 }
+
+/*
+ *******************************************************************************
+ *                                                                             *
+ *   InitializeMagic() initializes the magic number tables used in the new     *
+ *   magic move generation algorithm.  We also initialize a set of parallel    *
+ *   tables that contain mobility scores for each possible set of magic attack *
+ *   vectors, which saves significant time in the evaluation, since it is done *
+ *   here before the game actually starts.                                     *
+ *                                                                             *
+ *******************************************************************************
+ */
+void InitializeMagic() {
+  int i, j;
+  int initmagicmoves_bitpos64_database[64] = [
+    63, 0, 58, 1, 59, 47, 53, 2,
+    60, 39, 48, 27, 54, 33, 42, 3,
+    61, 51, 37, 40, 49, 18, 28, 20,
+    55, 30, 34, 11, 43, 14, 22, 4,
+    62, 57, 46, 52, 38, 26, 32, 41,
+    50, 36, 17, 19, 29, 10, 13, 21,
+    56, 45, 25, 31, 35, 16, 9, 12,
+    44, 24, 15, 8, 23, 7, 6, 5
+  ];
+/*
+ Bishop attacks and mobility
+ */
+  for (i = 0; i < 64; i++) {
+    int squares[64];
+    int numsquares = 0;
+    ulong temp = magic_bishop_mask[i];
+
+    while (temp) {
+      ulong abit = temp & -temp;
+
+      squares[numsquares++] =
+          initmagicmoves_bitpos64_database[(abit *
+              0x07EDD5E59A4E28C2UL) >> 58];
+      temp ^= abit;
+    }
+    for (temp = 0; temp < ((to!ulong(1)) << numsquares); temp++) {
+      ulong moves;
+      int t = -lower_b;
+      ulong tempoccupied = InitializeMagicOccupied(squares, numsquares, temp);
+      moves = InitializeMagicBishop(i, tempoccupied);
+      magic_bishop_table[(magic_bishop_indices[i] + (((tempoccupied) * magic_bishop[i]) >> magic_bishop_shift[i]))] = moves;
+      moves |= SetMask(i);
+      for (j = 0; j < 4; j++)
+        t += PopCnt(moves & mobility_mask_b[j]) * mobility_score_b[j];
+      if (t < 0)
+        t *= 2;
+        magic_bishop_mobility_table[(magic_bishop_mobility_indices[i] + (((tempoccupied) * magic_bishop[i]) >> magic_bishop_shift[i]))] = to!short(t);
+    }
+  }
+/*
+ Rook attacks and mobility
+ */
+  for (i = 0; i < 64; i++) {
+    int squares[64];
+    int numsquares = 0;
+    int t;
+    ulong temp = magic_rook_mask[i];
+
+    while (temp) {
+      ulong abit = temp & -temp;
+
+      squares[numsquares++] =
+          initmagicmoves_bitpos64_database[(abit *
+              0x07EDD5E59A4E28C2UL) >> 58];
+      temp ^= abit;
+    }
+    for (temp = 0; temp < ((to!ulong(1)) << numsquares); temp++) {
+      ulong tempoccupied = InitializeMagicOccupied(squares, numsquares, temp);
+      ulong moves = InitializeMagicRook(i, tempoccupied);
+      magic_rook_table[(magic_rook_indices[i] + (((tempoccupied) * magic_rook[i]) >> magic_rook_shift[i]))] = moves;
+      moves |= SetMask(i);
+      t = -1;
+      for (j = 0; j < 4; j++)
+        t += PopCnt(moves & mobility_mask_r[j]) * mobility_score_r[j];
+        magic_rook_mobility_table[(magic_rook_mobility_indices[i] + (((tempoccupied) * magic_rook[i]) >> magic_rook_shift[i]))] = to!short(mob_curve_r[t]);
+
+    }
+  }
+}
+
+ulong InitializeMagicBishop(int square, ulong occupied) {
+  ulong ret = 0;
+  ulong abit;
+  ulong abit2;
+  ulong rowbits = ((to!ulong(0xFF)) << (8 * (square / 8)));
+
+  abit = ((to!ulong(1)) << square);
+  abit2 = abit;
+  do {
+    abit <<= 8 - 1;
+    abit2 >>= 1;
+    if (abit2 & rowbits)
+      ret |= abit;
+    else
+      break;
+  } while (abit && !(abit & occupied));
+  abit = ((to!ulong(1)) << square);
+  abit2 = abit;
+  do {
+    abit <<= 8 + 1;
+    abit2 <<= 1;
+    if (abit2 & rowbits)
+      ret |= abit;
+    else
+      break;
+  } while (abit && !(abit & occupied));
+  abit = ((to!ulong(1)) << square);
+  abit2 = abit;
+  do {
+    abit >>= 8 - 1;
+    abit2 <<= 1;
+    if (abit2 & rowbits)
+      ret |= abit;
+    else
+      break;
+  } while (abit && !(abit & occupied));
+  abit = ((to!ulong(1)) << square);
+  abit2 = abit;
+  do {
+    abit >>= 8 + 1;
+    abit2 >>= 1;
+    if (abit2 & rowbits)
+      ret |= abit;
+    else
+      break;
+  } while (abit && !(abit & occupied));
+  return (ret);
+}
+
+/*
+ *******************************************************************************
+ *                                                                             *
+ *   InitializeMagicOccupied() generates a specific occupied-square bitboard   *
+ *   needed during initialization.                                             *
+ *                                                                             *
+ *******************************************************************************
+ */
+ulong InitializeMagicOccupied(ref int squares[64], int numSquares, ulong linoccupied) {
+  int i;
+  ulong ret = 0;
+
+  for (i = 0; i < numSquares; i++)
+    if (linoccupied & ((to!ulong(1)) << i))
+      ret |= ((to!ulong(1)) << squares[i]);
+  return (ret);
+}
+
+/*
+ *******************************************************************************
+ *                                                                             *
+ *   InitializeMagicRook() does the rook-specific initialization for a         *
+ *   particular square on the board.                                           *
+ *                                                                             *
+ *******************************************************************************
+ */
+ulong InitializeMagicRook(int square, ulong occupied) {
+  ulong ret = 0;
+  ulong abit;
+  ulong rowbits = ((to!ulong(0xFF)) << (8 * (square / 8)));
+
+  abit = ((to!ulong(1)) << square);
+  do {
+    abit <<= 8;
+    ret |= abit;
+  } while (abit && !(abit & occupied));
+  abit = ((to!ulong(1)) << square);
+  do {
+    abit >>= 8;
+    ret |= abit;
+  } while (abit && !(abit & occupied));
+  abit = ((to!ulong(1)) << square);
+  do {
+    abit <<= 1;
+    if (abit & rowbits)
+      ret |= abit;
+    else
+      break;
+  } while (!(abit & occupied));
+  abit = ((to!ulong(1)) << square);
+  do {
+    abit >>= 1;
+    if (abit & rowbits)
+      ret |= abit;
+    else
+      break;
+  } while (!(abit & occupied));
+  return (ret);
+}
+
+ulong AttacksBishop(int square, ulong occ) {
+    return(magic_bishop_table[(magic_bishop_indices[square]+((((occ)&magic_bishop_mask[square])*magic_bishop[square])>>magic_bishop_shift[square]))]);
+}
+
