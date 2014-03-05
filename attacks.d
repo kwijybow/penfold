@@ -623,3 +623,12 @@ ulong AttacksBishop(int square, ulong occ) {
     return(magic_bishop_table[(magic_bishop_indices[square]+((((occ)&magic_bishop_mask[square])*magic_bishop[square])>>magic_bishop_shift[square]))]);
 }
 
+ulong AttacksRook(int square, ulong occ) {
+    return(magic_rook_table[(magic_rook_indices[square]+((((occ)&magic_rook_mask[square])*magic_rook[square])>>magic_rook_shift[square]))]);
+}
+
+ulong AttacksQueen(int square, ulong occ) {
+    return(
+      magic_rook_table[(magic_rook_indices[square]+((((occ)&magic_rook_mask[square])*magic_rook[square])>>magic_rook_shift[square]))] |
+      magic_bishop_table[(magic_bishop_indices[square]+((((occ)&magic_bishop_mask[square])*magic_bishop[square])>>magic_bishop_shift[square]))]);
+}

@@ -60,14 +60,14 @@ void main (char[][] args) {
                 //writefln("hash key %s",p.hash_key);
                 collisions++;
                 value = val + 1;
-//                if (value > max) {
-//                    max = value;
+                if (value > max) {
+                    max = value;
 //                    writefln("new max = %s",max);
 //                    writefln("total collisions = %s",collisions);
                     //writefln("hash key %s",p.hash_key);
 //                    writefln("%s",line);
 //                    t.p.printPosition();
-//                }
+                }
                 //writefln("value = %s",value);
             }
             //value++;

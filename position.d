@@ -23,6 +23,7 @@ class Position {
     string enpassant_target;
     string displayBoard[64];
     int board[64];
+    int kingsq[2];
     
     this() {
         int square = 0;
@@ -36,6 +37,7 @@ class Position {
             queens[i]   = 0;
             kings[i]    = 0;
             occupied[i] = 0;
+            kingsq[i]	= 0;
         }
         empty         = ~(occupied[0] | occupied[1]);
         hash_key      = 0;
@@ -205,12 +207,14 @@ class Position {
             sq = bsf(tempBoard);
             tempBoard &= tempBoard - 1;
             board[sq] = -6;
+            kingsq[Color.black] = sq;
         }
         tempBoard = kings[Color.white];
         while (tempBoard) {
             sq = bsf(tempBoard);
             tempBoard &= tempBoard - 1;
             board[sq] = 6;
+            kingsq[Color.white] = sq;
         }
     }
     

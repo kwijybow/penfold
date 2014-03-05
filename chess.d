@@ -28,6 +28,11 @@ int mob_curve_r[48] = [
    17, 18, 19, 20, 21, 22, 23, 24,
    25, 26, 27, 28, 29, 30, 31, 32
 ];
+int pawnadv1[2] = [ +8, -8 ];
+int capleft[2] = [ +9, -7 ];
+int capright[2] = [ +7, -9 ];
+int pawnadv2[2] = [ +16, -16 ];
+
 
 struct Path {
   int path[MAXPLY];
@@ -79,4 +84,6 @@ void InitializeSquares() {
             square++;
         }
     }
+    squarenum["-"] = BAD_SQUARE;
+    squarename[BAD_SQUARE] = "-";
 }
