@@ -37,6 +37,7 @@ void main (char[][] args) {
     t.move_list[1].length = 5120;
     t.move_list[1][] = 0;
     num_moves = GenerateCaptures(t, 1, t.p.ctm, move_index);
+    num_moves += GenerateChecks(t,1, t.p.ctm, move_index);
     for (int i=0; i< 10; i++)
         writef("%s ",t.move_list[1][i]);
     writeln;
@@ -49,6 +50,7 @@ void main (char[][] args) {
         move_index = 0;
         num_moves = 0;
         num_moves = GenerateCaptures(t, 1, t.p.ctm, move_index);
+        num_moves += GenerateChecks(t,1, t.p.ctm, move_index);
 //        writefln("num_moves %s, move_index %s",num_moves, move_index);
 //        for (int i=0; i< 10; i++)
 //            writef("%s ",t.move_list[1][i]);
